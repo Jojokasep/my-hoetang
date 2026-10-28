@@ -30,6 +30,7 @@
             --border-color: #E2E8F0;
             --green-success: #00B67A;
             --red-danger: #FF4D4F;
+            --blue-info: #0084FF;
         }
 
         * {
@@ -226,7 +227,6 @@
             color: var(--text-main);
         }
 
-        /* Tombol & Layout Form */
         button {
             background: var(--seabank-orange);
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -307,7 +307,6 @@
             gap: 12px;
         }
 
-        /* Custom Checkbox */
         .checkbox-container {
             display: block;
             position: relative;
@@ -364,6 +363,27 @@
             font-weight: 700;
             font-size: 0.95rem;
             color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-category {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-rutin {
+            background: #E6F2FF;
+            color: var(--blue-info);
+        }
+
+        .badge-biasa {
+            background: #FFF2EB;
+            color: var(--seabank-orange);
         }
 
         .debt-details .amount {
@@ -607,7 +627,7 @@
                         <div class="value" id="displayIncome">Rp 0</div>
                     </div>
                     <div class="card-item debt-total">
-                        <h3>Total Hutang</h3>
+                        <h3>Total Tagihan</h3>
                         <div class="value" id="displayTotalDebt">Rp 0</div>
                     </div>
                     <div class="card-item remaining">
@@ -622,8 +642,8 @@
         <div id="view-home" class="view-section active">
             <div class="section-box">
                 <div class="section-title">
-                    <span>Daftar Hutang Aktif</span>
-                    <button class="btn-secondary btn-small" onclick="checkAll()">Lunas Semua</button>
+                    <span>Daftar Hutang & Pengeluaran</span>
+                    <button class="btn-secondary btn-small" onclick="checkAll()">Lunas Semua (Hutang Biasa)</button>
                 </div>
                 <ul class="debt-list" id="debtList">
                     <!-- Data inject -->
@@ -635,7 +655,7 @@
         <div id="view-history" class="view-section">
             <div class="section-box">
                 <div class="section-title">
-                    <span>Riwayat Transaksi & Cicilan</span>
+                    <span>Riwayat Transaksi & Pembayaran</span>
                     <i class="fa-solid fa-clock-rotate-left" style="color: var(--seabank-orange);"></i>
                 </div>
                 <div id="globalHistoryList">
@@ -658,15 +678,22 @@
             </div>
 
             <div class="section-box">
-                <div class="section-title">Catat / Tambah Hutang</div>
+                <div class="section-title">Catat Hutang / Pengeluaran Rutin</div>
                 <div class="input-group">
-                    <label>Nama Pemberi Hutang</label>
+                    <label>Nama Tagihan / Pemberi Hutang</label>
                     <div class="row">
-                        <input type="text" id="debtorName" placeholder="Nama..." style="flex: 1.5;">
+                        <input type="text" id="debtorName" placeholder="Cth: WiFi, Listrik, atau Nama..." style="flex: 1.5;">
                         <select id="debtorSelect" onchange="selectExistingDebtor(this)" style="flex: 1;">
                             <option value="">-- Pilih --</option>
                         </select>
                     </div>
+                </div>
+                <div class="input-group">
+                    <label>Kategori Jenis Tagihan</label>
+                    <select id="debtCategory">
+                        <option value="biasa">Hutang Biasa (Bisa Lunas / Sekali Bayar)</option>
+                        <option value="rutin">Pengeluaran Rutin Bulanan (WiFi, Makan, Dll)</option>
+                    </select>
                 </div>
                 <div class="input-group">
                     <label>Nominal (Angka Saja)</label>
@@ -703,7 +730,7 @@
                 <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importDataJSON(event)">
 
                 <h3 style="margin-top: 15px;">Informasi Aplikasi</h3>
-                <p>Aplikasi pencatatan hutang bergaya modern berstandar perbankan digital untuk mengontrol sisa saldo Anda agar tetap aman.</p>
+                <p>Aplikasi pencatatan hutang & pengeluaran bergaya modern berstandar perbankan digital untuk mengontrol sisa saldo Anda agar tetap aman.</p>
                 
                 <button class="btn-danger-light" style="width: 100%; margin-top: 10px;" onclick="resetAllData()">Reset Seluruh Data</button>
             </div>
@@ -745,6 +772,7 @@
                 appData = JSON.parse(savedData);
                 appData.debts.forEach(d => {
                     if (!d.history) d.history = [];
+                    if (!d.category) d.category = "biasa"; // Default ke hutang biasa untuk data lama
                 });
             }
             renderApp();
@@ -755,7 +783,6 @@
             localStorage.setItem("seabank_hoetang_data", JSON.stringify(appData));
         }
 
-        // FUNGSI INISIALISASI PWA & TOMBOL INSTALL
         function initPWA() {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
@@ -786,7 +813,6 @@
             }
         }
 
-        // FITUR EKSPOR DATA JSON
         function exportDataJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
             const downloadAnchor = document.createElement('a');
@@ -799,7 +825,6 @@
             downloadAnchor.remove();
         }
 
-        // FITUR IMPOR DATA JSON
         function importDataJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -814,6 +839,7 @@
                             appData = importedData;
                             appData.debts.forEach(d => {
                                 if (!d.history) d.history = [];
+                                if (!d.category) d.category = "biasa";
                             });
                             saveData();
                             renderApp();
@@ -831,7 +857,6 @@
             event.target.value = "";
         }
 
-        // CONTROL CUSTOM NUMERIC MODAL
         function openNumericModal(title, subtitle, callback) {
             document.getElementById("modalTitle").textContent = title;
             document.getElementById("modalSubtitle").textContent = subtitle;
@@ -901,12 +926,17 @@
             const nameInput = document.getElementById("debtorName");
             if (selectElement.value) {
                 nameInput.value = selectElement.value;
+                const existing = appData.debts.find(d => d.name.toLowerCase() === selectElement.value.toLowerCase());
+                if (existing) {
+                    document.getElementById("debtCategory").value = existing.category || "biasa";
+                }
             }
         }
 
         function addOrUpdateDebt() {
             const nameInput = document.getElementById("debtorName");
             const amountInput = document.getElementById("debtAmount");
+            const categoryInput = document.getElementById("debtCategory").value;
             
             const name = nameInput.value.trim();
             const amount = parseFloat(amountInput.value);
@@ -921,23 +951,25 @@
 
             if (existingDebt) {
                 existingDebt.amount += amount;
+                existingDebt.category = categoryInput;
                 existingDebt.history.unshift({
                     type: 'add',
                     amount: amount,
                     date: now,
-                    note: 'Tambah hutang'
+                    note: categoryInput === 'rutin' ? 'Tambah tagihan rutin' : 'Tambah hutang'
                 });
             } else {
                 appData.debts.push({
                     id: Date.now(),
                     name: name,
                     amount: amount,
+                    category: categoryInput,
                     completed: false,
                     history: [{
                         type: 'add',
                         amount: amount,
                         date: now,
-                        note: 'Hutang awal'
+                        note: categoryInput === 'rutin' ? 'Tagihan rutin awal' : 'Hutang awal'
                     }]
                 });
             }
@@ -950,35 +982,49 @@
             switchView('home', document.querySelectorAll('.nav-item')[0]);
         }
 
-        // FITUR: Cicil / Kurangi Hutang
+        // FITUR: Cicil / Bayar Tagihan (Perlakuan Beda Antara Rutin & Biasa)
         function reduceDebt(id) {
             const debt = appData.debts.find(d => d.id === id);
             if (!debt) return;
 
+            const isRutin = debt.category === 'rutin';
+
             openNumericModal(
-                `Cicil Hutang (${debt.name})`,
-                `Sisa hutang saat ini: ${formatRupiah(debt.amount)}. Masukkan jumlah pembayaran:`,
+                `Bayar / Cicil (${debt.name})`,
+                `Sisa tagihan saat ini: ${formatRupiah(debt.amount)}. Masukkan jumlah pembayaran:`,
                 (payAmount) => {
                     const now = new Date().toISOString();
 
-                    if (payAmount >= debt.amount) {
-                        if (confirm(`Pembayaran ${formatRupiah(payAmount)} melunasi seluruh hutang (${formatRupiah(debt.amount)}). Tandai lunas?`)) {
-                            debt.history.unshift({
-                                type: 'pay',
-                                amount: debt.amount,
-                                date: now,
-                                note: 'Pelunasan hutang'
-                            });
-                            appData.debts = appData.debts.filter(d => d.id !== id);
-                        }
-                    } else {
-                        debt.amount -= payAmount;
+                    if (isRutin) {
+                        // KATEGORI RUTIN: Tidak dihapus/lunas selamanya, hanya mencatat transaksi pembayaran
                         debt.history.unshift({
                             type: 'pay',
                             amount: payAmount,
                             date: now,
-                            note: 'Bayar cicilan'
+                            note: 'Bayar tagihan rutin'
                         });
+                        alert(`Pembayaran tagihan rutin ${debt.name} sebesar ${formatRupiah(payAmount)} berhasil dicatat di riwayat!`);
+                    } else {
+                        // KATEGORI HUTANG BIASA: Bisa lunas & hilang jika pembayaran penuh
+                        if (payAmount >= debt.amount) {
+                            if (confirm(`Pembayaran ${formatRupiah(payAmount)} melunasi seluruh hutang (${formatRupiah(debt.amount)}). Tandai lunas?`)) {
+                                debt.history.unshift({
+                                    type: 'pay',
+                                    amount: debt.amount,
+                                    date: now,
+                                    note: 'Pelunasan hutang'
+                                });
+                                appData.debts = appData.debts.filter(d => d.id !== id);
+                            }
+                        } else {
+                            debt.amount -= payAmount;
+                            debt.history.unshift({
+                                type: 'pay',
+                                amount: payAmount,
+                                date: now,
+                                note: 'Bayar cicilan'
+                            });
+                        }
                     }
 
                     saveData();
@@ -987,14 +1033,14 @@
             );
         }
 
-        // FITUR: Tambah Nominal Hutang
+        // FITUR: Tambah Nominal Tagihan
         function addMoreToDebt(id) {
             const debt = appData.debts.find(d => d.id === id);
             if (!debt) return;
 
             openNumericModal(
-                `Tambah Hutang (${debt.name})`,
-                `Hutang saat ini: ${formatRupiah(debt.amount)}. Masukkan nominal tambahan:`,
+                `Tambah Tagihan (${debt.name})`,
+                `Tagihan saat ini: ${formatRupiah(debt.amount)}. Masukkan nominal tambahan:`,
                 (addAmount) => {
                     const now = new Date().toISOString();
                     debt.amount += addAmount;
@@ -1002,7 +1048,7 @@
                         type: 'add',
                         amount: addAmount,
                         date: now,
-                        note: 'Tambah hutang'
+                        note: debt.category === 'rutin' ? 'Tambah tagihan rutin' : 'Tambah hutang'
                     });
 
                     saveData();
@@ -1011,25 +1057,36 @@
             );
         }
 
-        // FITUR: Centang Lunas
+        // FITUR: Centang Lunas (Hanya berlaku untuk Hutang Biasa, Rutin diberi konfirmasi)
         function toggleDebt(id) {
             const debt = appData.debts.find(d => d.id === id);
-            if (debt) {
-                debt.completed = !debt.completed;
-                if (debt.completed) {
-                    setTimeout(() => {
-                        appData.debts = appData.debts.filter(d => d.id !== id);
-                        saveData();
-                        renderApp();
-                    }, 350);
-                }
+            if (!debt) return;
+
+            if (debt.category === 'rutin') {
+                alert("Pengeluaran rutin bulanan tidak bisa dilunasi selamanya. Gunakan tombol 'Bayar' untuk mencatat pembayarannya.");
+                renderApp();
+                return;
+            }
+
+            debt.completed = !debt.completed;
+            if (debt.completed) {
+                setTimeout(() => {
+                    appData.debts = appData.debts.filter(d => d.id !== id);
+                    saveData();
+                    renderApp();
+                }, 350);
             }
         }
 
         function checkAll() {
-            if (appData.debts.length === 0) return;
-            if (confirm("Lunasi dan hapus seluruh daftar hutang?")) {
-                appData.debts = [];
+            const debtBiasa = appData.debts.filter(d => d.category !== 'rutin');
+            if (debtBiasa.length === 0) {
+                alert("Tidak ada hutang biasa aktif untuk dilunasi!");
+                return;
+            }
+
+            if (confirm("Lunasi seluruh daftar hutang biasa? (Tagihan rutin tidak akan terhapus)")) {
+                appData.debts = appData.debts.filter(d => d.category === 'rutin');
                 saveData();
                 renderApp();
             }
@@ -1063,34 +1120,40 @@
             appData.debts.forEach(debt => {
                 const option = document.createElement("option");
                 option.value = debt.name;
-                option.textContent = debt.name;
+                option.textContent = `${debt.name} (${debt.category === 'rutin' ? 'Rutin' : 'Biasa'})`;
                 debtorSelect.appendChild(option);
             });
 
             // 1. RENDER DAFTAR HUTANG DI BERANDA
             debtList.innerHTML = "";
             if (appData.debts.length === 0) {
-                debtList.innerHTML = `<li class="empty-state">Tidak ada catatan hutang aktif. Aman!</li>`;
+                debtList.innerHTML = `<li class="empty-state">Tidak ada catatan hutang / pengeluaran aktif. Aman!</li>`;
             } else {
                 appData.debts.forEach(debt => {
                     const li = document.createElement("li");
                     li.className = "debt-item";
+
+                    const isRutin = debt.category === 'rutin';
+                    const badgeHtml = isRutin 
+                        ? `<span class="badge-category badge-rutin">Rutin</span>` 
+                        : `<span class="badge-category badge-biasa">Biasa</span>`;
+
                     li.innerHTML = `
                         <div class="debt-info">
-                            <label class="checkbox-container" title="Centang jika sudah lunas">
-                                <input type="checkbox" ${debt.completed ? 'checked' : ''} onchange="toggleDebt(${debt.id})">
+                            <label class="checkbox-container" title="${isRutin ? 'Pengeluaran rutin' : 'Centang jika sudah lunas'}">
+                                <input type="checkbox" ${debt.completed ? 'checked' : ''} onchange="toggleDebt(${debt.id})" ${isRutin ? 'disabled' : ''}>
                                 <span class="checkmark"></span>
                             </label>
                             <div class="debt-details">
-                                <div class="name">${escapeHtml(debt.name)}</div>
-                                <div class="amount">Sisa: ${formatRupiah(debt.amount)}</div>
+                                <div class="name">${escapeHtml(debt.name)} ${badgeHtml}</div>
+                                <div class="amount">${isRutin ? 'Estimasi:' : 'Sisa:'} ${formatRupiah(debt.amount)}</div>
                             </div>
                         </div>
                         <div class="debt-actions">
-                            <button class="btn-success-light btn-small" onclick="reduceDebt(${debt.id})" title="Cicil / Kurangi Hutang">
-                                <i class="fa-solid fa-minus"></i> Cicil
+                            <button class="btn-success-light btn-small" onclick="reduceDebt(${debt.id})" title="${isRutin ? 'Bayar Tagihan Rutin' : 'Cicil / Kurangi Hutang'}">
+                                <i class="fa-solid fa-minus"></i> ${isRutin ? 'Bayar' : 'Cicil'}
                             </button>
-                            <button class="btn-secondary btn-small" onclick="addMoreToDebt(${debt.id})" title="Tambah Hutang Lagi">
+                            <button class="btn-secondary btn-small" onclick="addMoreToDebt(${debt.id})" title="Tambah Nominal Tagihan">
                                 <i class="fa-solid fa-plus"></i> Tambah
                             </button>
                         </div>
@@ -1108,6 +1171,7 @@
                     debt.history.forEach(h => {
                         allHistory.push({
                             name: debt.name,
+                            category: debt.category,
                             ...h
                         });
                     });

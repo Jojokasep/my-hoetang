@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Hoetang - SeaBank Edition</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#FF6600">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="My Hoetang">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/60/60484.png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome untuk ikon Bottom Bar & Action -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --seabank-orange: #FF6600;
+            --seabank-orange-dark: #E55C00;
+            --seabank-orange-light: #FFF2EB;
+            --bg-color: #F4F6F9;
+            --panel-bg: #FFFFFF;
+            --text-main: #1A1D20;
+            --text-muted: #747D8C;
+            --border-color: #E2E8F0;
+            --green-success: #00B67A;
+            --red-danger: #FF4D4F;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding: 0 0 85px 0;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        /* SPLASH SCREEN */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+        }
+
+        #splash-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-logo-container {
+            text-align: center;
+            animation: splashSmooth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .splash-icon {
+            width: 85px;
+            height: 85px;
+            background: var(--seabank-orange-light);
+            color: var(--seabank-orange);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.3rem;
+            margin: 0 auto 18px auto;
+            box-shadow: 0 10px 25px rgba(255, 102, 0, 0.15);
+        }
+
+        .splash-title {
+            color: var(--text-main);
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .splash-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        @keyframes splashSmooth {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .app-wrapper {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-color);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        /* Header Style ala SeaBank */
+        .seabank-header {
+            background: linear-gradient(135deg, var(--seabank-orange) 0%, var(--seabank-orange-dark) 100%);
+            color: #FFFFFF;
+            padding: 24px 20px 45px 20px;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-top h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .header-top p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .profile-badge {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            backdrop-filter: blur(5px);
+        }
+
+        /* View Sections System */
+        .view-section {
+            display: none;
+            padding: 0 20px;
+        }
+        .view-section.active {
+            display: block;
+            animation: fadeInView 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInView {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Floating Balance Card */
+        .balance-card-container {
+            padding: 0 20px;
+            margin-top: -30px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .balance-card {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            padding: 18px 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .card-item h3 {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .card-item .value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-item.income .value { color: var(--green-success); }
+        .card-item.debt-total .value { color: var(--red-danger); }
+        .card-item.remaining .value { color: var(--seabank-orange); }
+
+        /* Form Inputs & Sections */
+        .section-box {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-color);
+            overflow: visible !important;
+            max-height: none !important;
+            height: auto !important;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        input, select {
+            width: 100%;
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.92rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--seabank-orange);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
+        }
+
+        select option {
+            background: #FFFFFF;
+            color: var(--text-main);
+        }
+
+        /* Tombol & Layout Form */
+        button {
+            background: var(--seabank-orange);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            border: none;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 10px rgba(255, 102, 0, 0.2);
+        }
+
+        button:active {
+            transform: scale(0.98);
+            background: var(--seabank-orange-dark);
+        }
+
+        button.btn-secondary {
+            background: var(--seabank-orange-light);
+            color: var(--seabank-orange);
+            box-shadow: none;
+            padding: 12px 14px;
+        }
+
+        button.btn-secondary:active {
+            background: #FFE5D6;
+        }
+
+        button.btn-success-light {
+            background: #E6F8F1;
+            color: var(--green-success);
+            box-shadow: none;
+        }
+
+        button.btn-danger-light {
+            background: #FFF1F0;
+            color: var(--red-danger);
+            box-shadow: none;
+        }
+
+        button.btn-small {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            border-radius: 8px;
+        }
+
+        /* List Section */
+        .debt-list {
+            list-style: none;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            display: block;
+        }
+
+        .debt-item {
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .debt-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .debt-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Custom Checkbox */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            cursor: pointer;
+            font-size: 20px;
+            user-select: none;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: relative;
+            height: 22px;
+            width: 22px;
+            background-color: #F8FAFC;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--green-success);
+            border-color: var(--green-success);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 7px;
+            top: 3px;
+            width: 4px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .debt-details .name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .debt-details .amount {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--red-danger);
+            margin-top: 2px;
+        }
+
+        .debt-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* DAFTAR RIWAYAT TRANSAKSI */
+        .history-card-item {
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .history-card-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .history-card-left {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .history-card-left .h-name {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-main);
+        }
+
+        .history-card-left .h-date {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+        }
+
+        .history-card-right {
+            text-align: right;
+        }
+
+        .history-card-right .h-amount {
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .history-card-right .h-amount.pay { color: var(--green-success); }
+        .history-card-right .h-amount.add { color: var(--red-danger); }
+
+        .history-card-right .h-note {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 30px 0;
+            font-size: 0.85rem;
+        }
+
+        /* CUSTOM MODAL DIALOG */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .custom-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-modal {
+            background: #FFFFFF;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transform: translateY(15px);
+            transition: all 0.2s ease;
+        }
+
+        .custom-modal-overlay.show .custom-modal {
+            transform: translateY(0);
+        }
+
+        .custom-modal h4 {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .custom-modal p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .custom-modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        /* NATIVE BOTTOM NAVIGATION BAR */
+        .native-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            height: 65px;
+            background: #FFFFFF;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-item {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+            color: var(--text-muted);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item i {
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        .nav-item.active {
+            color: var(--seabank-orange);
+            box-shadow: none;
+        }
+
+        .info-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .info-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+        .info-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .backup-action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+        <div class="splash-logo-container">
+            <div class="splash-icon">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div class="splash-title">My Hoetang</div>
+            <div class="splash-subtitle">Digital Debt Platform</div>
+        </div>
+    </div>
+
+    <!-- CUSTOM NUMERIC INPUT MODAL -->
+    <div id="numericModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <h4 id="modalTitle">Judul Input</h4>
+            <p id="modalSubtitle">Subjudul informasi...</p>
+            <input type="number" id="modalInputNumber" inputmode="numeric" pattern="[0-9]*" placeholder="0" autofocus>
+            <div class="custom-modal-buttons">
+                <button class="btn-secondary btn-small" onclick="closeNumericModal()">Batal</button>
+                <button class="btn-small" onclick="submitNumericModal()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-wrapper">
+        <!-- SeaBank Orange Top Header -->
+        <div class="seabank-header">
+            <div class="header-top">
+                <div>
+                    <h1>My Hoetang</h1>
+                    <p>Digital Debt Platform</p>
+                </div>
+                <div class="profile-badge">HB</div>
+            </div>
+        </div>
+
+        <!-- Floating Card Saldo / Ringkasan -->
+        <div class="balance-card-container">
+            <div class="balance-card">
+                <div class="dashboard-grid">
+                    <div class="card-item income">
+                        <h3>Penghasilan</h3>
+                        <div class="value" id="displayIncome">Rp 0</div>
+                    </div>
+                    <div class="card-item debt-total">
+                        <h3>Total Hutang</h3>
+                        <div class="value" id="displayTotalDebt">Rp 0</div>
+                    </div>
+                    <div class="card-item remaining">
+                        <h3>Sisa Uang</h3>
+                        <div class="value" id="displayRemaining">Rp 0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 1: BERANDA -->
+        <div id="view-home" class="view-section active">
+            <div class="section-box">
+                <div class="section-title">
+                    <span>Daftar Hutang Aktif</span>
+                    <button class="btn-secondary btn-small" onclick="checkAll()">Lunas Semua</button>
+                </div>
+                <ul class="debt-list" id="debtList">
+                    <!-- Data inject -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- VIEW 2: RIWAYAT -->
+        <div id="view-history" class="view-section">
+            <div class="section-box">
+                <div class="section-title">
+                    <span>Riwayat Transaksi & Cicilan</span>
+                    <i class="fa-solid fa-clock-rotate-left" style="color: var(--seabank-orange);"></i>
+                </div>
+                <div id="globalHistoryList">
+                    <!-- Inject Riwayat Global -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: KELOLA -->
+        <div id="view-add" class="view-section">
+            <div class="section-box">
+                <div class="section-title">Atur / Tambah Penghasilan</div>
+                <div class="input-group">
+                    <label for="incomeInput">Tambah Saldo / Uang Masuk</label>
+                    <div class="row">
+                        <input type="number" id="incomeInput" inputmode="numeric" pattern="[0-9]*" placeholder="Nominal angka...">
+                        <button onclick="saveIncome()">Tambah</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-box">
+                <div class="section-title">Catat / Tambah Hutang</div>
+                <div class="input-group">
+                    <label>Nama Pemberi Hutang</label>
+                    <div class="row">
+                        <input type="text" id="debtorName" placeholder="Nama..." style="flex: 1.5;">
+                        <select id="debtorSelect" onchange="selectExistingDebtor(this)" style="flex: 1;">
+                            <option value="">-- Pilih --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Nominal (Angka Saja)</label>
+                    <div class="row">
+                        <input type="number" id="debtAmount" inputmode="numeric" pattern="[0-9]*" placeholder="Cth: 150000" style="flex: 1.5;">
+                        <button onclick="addOrUpdateDebt()" style="flex: 1;">Simpan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: PENGATURAN -->
+        <div id="view-info" class="view-section">
+            <div class="info-card">
+                <!-- Tombol Install PWA Manual jika belum terinstall -->
+                <div id="pwaInstallBox" style="display: none; margin-bottom: 15px;">
+                    <h3>Install Aplikasi</h3>
+                    <p>Klik tombol di bawah untuk memasang aplikasi di layar utama HP Anda.</p>
+                    <button id="pwaInstallBtn" style="width: 100%;">
+                        <i class="fa-solid fa-mobile-screen-button"></i> Install Ke HP
+                    </button>
+                </div>
+
+                <h3>Cadangan & Pindah Data</h3>
+                <p>Ekspor data ke file JSON untuk cadangan atau dipindahkan ke HP lain. Impor file JSON untuk memulihkan data Anda.</p>
+                
+                <div class="backup-action-grid">
+                    <button class="btn-secondary" onclick="exportDataJSON()" style="width: 100%;">
+                        <i class="fa-solid fa-download"></i> Ekspor JSON
+                    </button>
+                    <button onclick="document.getElementById('importFileInput').click()" style="width: 100%;">
+                        <i class="fa-solid fa-upload"></i> Impor JSON
+                    </button>
+                </div>
+                <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importDataJSON(event)">
+
+                <h3 style="margin-top: 15px;">Informasi Aplikasi</h3>
+                <p>Aplikasi pencatatan hutang bergaya modern berstandar perbankan digital untuk mengontrol sisa saldo Anda agar tetap aman.</p>
+                
+                <button class="btn-danger-light" style="width: 100%; margin-top: 10px;" onclick="resetAllData()">Reset Seluruh Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NATIVE BOTTOM NAVIGATION BAR -->
+    <nav class="native-bottom-bar">
+        <button class="nav-item active" onclick="switchView('home', this)">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Beranda</span>
+        </button>
+        <button class="nav-item" onclick="switchView('history', this)">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Riwayat</span>
+        </button>
+        <button class="nav-item" onclick="switchView('add', this)">
+            <i class="fa-solid fa-circle-plus"></i>
+            <span>Kelola</span>
+        </button>
+        <button class="nav-item" onclick="switchView('info', this)">
+            <i class="fa-solid fa-gear"></i>
+            <span>Pengaturan</span>
+        </button>
+    </nav>
+
+    <script>
+        let appData = {
+            income: 0,
+            debts: []
+        };
+
+        let currentModalCallback = null;
+        let deferredPrompt;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedData = localStorage.getItem("seabank_hoetang_data");
+            if (savedData) {
+                appData = JSON.parse(savedData);
+                appData.debts.forEach(d => {
+                    if (!d.history) d.history = [];
+                });
+            }
+            renderApp();
+            initPWA();
+
+            setTimeout(() => {
+                const splash = document.getElementById("splash-screen");
+                if (splash) {
+                    splash.classList.add("fade-out");
+                }
+            }, 1800);
+        });
+
+        function saveData() {
+            localStorage.setItem("seabank_hoetang_data", JSON.stringify(appData));
+        }
+
+        // FUNGSI INISIALISASI PWA & TOMBOL INSTALL
+        function initPWA() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW Registered:', reg))
+                    .catch(err => console.log('SW Registration failed:', err));
+            }
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const pwaBox = document.getElementById("pwaInstallBox");
+                if (pwaBox) pwaBox.style.display = "block";
+            });
+
+            const installBtn = document.getElementById("pwaInstallBtn");
+            if (installBtn) {
+                installBtn.addEventListener("click", () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                document.getElementById("pwaInstallBox").style.display = "none";
+                            }
+                            deferredPrompt = null;
+                        });
+                    }
+                });
+            }
+        }
+
+        // FITUR EKSPOR DATA JSON
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            const fileName = `MyHoetang_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", fileName);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // FITUR IMPOR DATA JSON
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+
+                    if (typeof importedData.income === 'number' && Array.isArray(importedData.debts)) {
+                        if (confirm("Impor data baru? Data saat ini akan digantikan oleh data cadangan ini.")) {
+                            appData = importedData;
+                            appData.debts.forEach(d => {
+                                if (!d.history) d.history = [];
+                            });
+                            saveData();
+                            renderApp();
+                            alert("Data berhasil diimpor!");
+                            switchView('home', document.querySelectorAll('.nav-item')[0]);
+                        }
+                    } else {
+                        alert("Format file JSON tidak sesuai!");
+                    }
+                } catch (err) {
+                    alert("Gagal membaca file JSON!");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        }
+
+        // CONTROL CUSTOM NUMERIC MODAL
+        function openNumericModal(title, subtitle, callback) {
+            document.getElementById("modalTitle").textContent = title;
+            document.getElementById("modalSubtitle").textContent = subtitle;
+            const input = document.getElementById("modalInputNumber");
+            input.value = "";
+            currentModalCallback = callback;
+
+            const modal = document.getElementById("numericModal");
+            modal.classList.add("show");
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeNumericModal() {
+            document.getElementById("numericModal").classList.remove("show");
+            currentModalCallback = null;
+        }
+
+        function submitNumericModal() {
+            const input = document.getElementById("modalInputNumber");
+            const val = parseFloat(input.value);
+
+            if (isNaN(val) || val <= 0) {
+                alert("Masukkan nominal angka yang valid!");
+                return;
+            }
+
+            if (currentModalCallback) {
+                currentModalCallback(val);
+            }
+            closeNumericModal();
+        }
+
+        function switchView(viewName, element) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('view-' + viewName).classList.add('active');
+            element.classList.add('active');
+        }
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function saveIncome() {
+            const input = document.getElementById("incomeInput");
+            const val = parseFloat(input.value);
+            if (isNaN(val) || val <= 0) {
+                alert("Masukkan jumlah uang angka yang valid!");
+                return;
+            }
+            
+            appData.income += val;
+            
+            input.value = "";
+            saveData();
+            renderApp();
+            switchView('home', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        function selectExistingDebtor(selectElement) {
+            const nameInput = document.getElementById("debtorName");
+            if (selectElement.value) {
+                nameInput.value = selectElement.value;
+            }
+        }
+
+        function addOrUpdateDebt() {
+            const nameInput = document.getElementById("debtorName");
+            const amountInput = document.getElementById("debtAmount");
+            
+            const name = nameInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+
+            if (!name || isNaN(amount) || amount <= 0) {
+                alert("Mohon masukkan nama dan nominal angka yang benar!");
+                return;
+            }
+
+            const existingDebt = appData.debts.find(d => d.name.toLowerCase() === name.toLowerCase());
+            const now = new Date().toISOString();
+
+            if (existingDebt) {
+                existingDebt.amount += amount;
+                existingDebt.history.unshift({
+                    type: 'add',
+                    amount: amount,
+                    date: now,
+                    note: 'Tambah hutang'
+                });
+            } else {
+                appData.debts.push({
+                    id: Date.now(),
+                    name: name,
+                    amount: amount,
+                    completed: false,
+                    history: [{
+                        type: 'add',
+                        amount: amount,
+                        date: now,
+                        note: 'Hutang awal'
+                    }]
+                });
+            }
+
+            nameInput.value = "";
+            amountInput.value = "";
+            document.getElementById("debtorSelect").value = "";
+            saveData();
+            renderApp();
+            switchView('home', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        // FITUR: Cicil / Kurangi Hutang
+        function reduceDebt(id) {
+            const debt = appData.debts.find(d => d.id === id);
+            if (!debt) return;
+
+            openNumericModal(
+                `Cicil Hutang (${debt.name})`,
+                `Sisa hutang saat ini: ${formatRupiah(debt.amount)}. Masukkan jumlah pembayaran:`,
+                (payAmount) => {
+                    const now = new Date().toISOString();
+
+                    if (payAmount >= debt.amount) {
+                        if (confirm(`Pembayaran ${formatRupiah(payAmount)} melunasi seluruh hutang (${formatRupiah(debt.amount)}). Tandai lunas?`)) {
+                            debt.history.unshift({
+                                type: 'pay',
+                                amount: debt.amount,
+                                date: now,
+                                note: 'Pelunasan hutang'
+                            });
+                            appData.debts = appData.debts.filter(d => d.id !== id);
+                        }
+                    } else {
+                        debt.amount -= payAmount;
+                        debt.history.unshift({
+                            type: 'pay',
+                            amount: payAmount,
+                            date: now,
+                            note: 'Bayar cicilan'
+                        });
+                    }
+
+                    saveData();
+                    renderApp();
+                }
+            );
+        }
+
+        // FITUR: Tambah Nominal Hutang
+        function addMoreToDebt(id) {
+            const debt = appData.debts.find(d => d.id === id);
+            if (!debt) return;
+
+            openNumericModal(
+                `Tambah Hutang (${debt.name})`,
+                `Hutang saat ini: ${formatRupiah(debt.amount)}. Masukkan nominal tambahan:`,
+                (addAmount) => {
+                    const now = new Date().toISOString();
+                    debt.amount += addAmount;
+                    debt.history.unshift({
+                        type: 'add',
+                        amount: addAmount,
+                        date: now,
+                        note: 'Tambah hutang'
+                    });
+
+                    saveData();
+                    renderApp();
+                }
+            );
+        }
+
+        // FITUR: Centang Lunas
+        function toggleDebt(id) {
+            const debt = appData.debts.find(d => d.id === id);
+            if (debt) {
+                debt.completed = !debt.completed;
+                if (debt.completed) {
+                    setTimeout(() => {
+                        appData.debts = appData.debts.filter(d => d.id !== id);
+                        saveData();
+                        renderApp();
+                    }, 350);
+                }
+            }
+        }
+
+        function checkAll() {
+            if (appData.debts.length === 0) return;
+            if (confirm("Lunasi dan hapus seluruh daftar hutang?")) {
+                appData.debts = [];
+                saveData();
+                renderApp();
+            }
+        }
+
+        function resetAllData() {
+            if (confirm("Reset seluruh data aplikasi?")) {
+                appData = { income: 0, debts: [] };
+                saveData();
+                renderApp();
+                switchView('home', document.querySelectorAll('.nav-item')[0]);
+            }
+        }
+
+        function renderApp() {
+            const displayIncome = document.getElementById("displayIncome");
+            const displayTotalDebt = document.getElementById("displayTotalDebt");
+            const displayRemaining = document.getElementById("displayRemaining");
+            const debtList = document.getElementById("debtList");
+            const debtorSelect = document.getElementById("debtorSelect");
+            const globalHistoryList = document.getElementById("globalHistoryList");
+
+            const totalDebt = appData.debts.reduce((acc, curr) => acc + curr.amount, 0);
+            const remainingMoney = appData.income - totalDebt;
+
+            displayIncome.textContent = formatRupiah(appData.income);
+            displayTotalDebt.textContent = formatRupiah(totalDebt);
+            displayRemaining.textContent = formatRupiah(remainingMoney);
+
+            debtorSelect.innerHTML = `<option value="">-- Pilih --</option>`;
+            appData.debts.forEach(debt => {
+                const option = document.createElement("option");
+                option.value = debt.name;
+                option.textContent = debt.name;
+                debtorSelect.appendChild(option);
+            });
+
+            // 1. RENDER DAFTAR HUTANG DI BERANDA
+            debtList.innerHTML = "";
+            if (appData.debts.length === 0) {
+                debtList.innerHTML = `<li class="empty-state">Tidak ada catatan hutang aktif. Aman!</li>`;
+            } else {
+                appData.debts.forEach(debt => {
+                    const li = document.createElement("li");
+                    li.className = "debt-item";
+                    li.innerHTML = `
+                        <div class="debt-info">
+                            <label class="checkbox-container" title="Centang jika sudah lunas">
+                                <input type="checkbox" ${debt.completed ? 'checked' : ''} onchange="toggleDebt(${debt.id})">
+                                <span class="checkmark"></span>
+                            </label>
+                            <div class="debt-details">
+                                <div class="name">${escapeHtml(debt.name)}</div>
+                                <div class="amount">Sisa: ${formatRupiah(debt.amount)}</div>
+                            </div>
+                        </div>
+                        <div class="debt-actions">
+                            <button class="btn-success-light btn-small" onclick="reduceDebt(${debt.id})" title="Cicil / Kurangi Hutang">
+                                <i class="fa-solid fa-minus"></i> Cicil
+                            </button>
+                            <button class="btn-secondary btn-small" onclick="addMoreToDebt(${debt.id})" title="Tambah Hutang Lagi">
+                                <i class="fa-solid fa-plus"></i> Tambah
+                            </button>
+                        </div>
+                    `;
+                    debtList.appendChild(li);
+                });
+            }
+
+            // 2. RENDER DAFTAR RIWAYAT DI TAB TERPISAH
+            globalHistoryList.innerHTML = "";
+            let allHistory = [];
+
+            appData.debts.forEach(debt => {
+                if (debt.history) {
+                    debt.history.forEach(h => {
+                        allHistory.push({
+                            name: debt.name,
+                            ...h
+                        });
+                    });
+                }
+            });
+
+            allHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (allHistory.length === 0) {
+                globalHistoryList.innerHTML = `<div class="empty-state">Belum ada riwayat transaksi.</div>`;
+            } else {
+                allHistory.forEach(item => {
+                    const div = document.createElement("div");
+                    div.className = "history-card-item";
+                    div.innerHTML = `
+                        <div class="history-card-left">
+                            <span class="h-name">${escapeHtml(item.name)}</span>
+                            <span class="h-date">${formatDate(item.date)}</span>
+                        </div>
+                        <div class="history-card-right">
+                            <div class="h-amount ${item.type === 'pay' ? 'pay' : 'add'}">
+                                ${item.type === 'pay' ? '-' : '+'}${formatRupiah(item.amount)}
+                            </div>
+                            <div class="h-note">${escapeHtml(item.note)}</div>
+                        </div>
+                    `;
+                    globalHistoryList.appendChild(div);
+                });
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

@@ -50,70 +50,6 @@
             overflow-x: hidden;
         }
 
-        /* SPLASH SCREEN */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #FFFFFF;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
-        }
-
-        #splash-screen.fade-out {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .splash-logo-container {
-            text-align: center;
-            animation: splashSmooth 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .splash-icon {
-            width: 85px;
-            height: 85px;
-            background: var(--seabank-orange-light);
-            color: var(--seabank-orange);
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.3rem;
-            margin: 0 auto 18px auto;
-            box-shadow: 0 10px 25px rgba(255, 102, 0, 0.15);
-        }
-
-        .splash-title {
-            color: var(--text-main);
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .splash-subtitle {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 600;
-        }
-
-        @keyframes splashSmooth {
-            0% { transform: scale(0.85); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
         .app-wrapper {
             width: 100%;
             max-width: 480px;
@@ -171,7 +107,7 @@
         }
         .view-section.active {
             display: block;
-            animation: fadeInView 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeInView 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes fadeInView {
@@ -637,17 +573,6 @@
 </head>
 <body>
 
-    <!-- SPLASH SCREEN -->
-    <div id="splash-screen">
-        <div class="splash-logo-container">
-            <div class="splash-icon">
-                <i class="fa-solid fa-wallet"></i>
-            </div>
-            <div class="splash-title">My Hoetang</div>
-            <div class="splash-subtitle">Digital Debt Platform</div>
-        </div>
-    </div>
-
     <!-- CUSTOM NUMERIC INPUT MODAL -->
     <div id="numericModal" class="custom-modal-overlay">
         <div class="custom-modal">
@@ -756,7 +681,6 @@
         <!-- VIEW 4: PENGATURAN -->
         <div id="view-info" class="view-section">
             <div class="info-card">
-                <!-- Tombol Install PWA Manual jika belum terinstall -->
                 <div id="pwaInstallBox" style="display: none; margin-bottom: 15px;">
                     <h3>Install Aplikasi</h3>
                     <p>Klik tombol di bawah untuk memasang aplikasi di layar utama HP Anda.</p>
@@ -825,13 +749,6 @@
             }
             renderApp();
             initPWA();
-
-            setTimeout(() => {
-                const splash = document.getElementById("splash-screen");
-                if (splash) {
-                    splash.classList.add("fade-out");
-                }
-            }, 1800);
         });
 
         function saveData() {
